@@ -44,14 +44,14 @@ var Board = function (pad, height, width) {
 		from_to(0, height - 1, function (row) {
 			board_state[row] = [];
 		});
-		clear_board();
+		clear_board_state();
 	};
 
-	var clear_board = function () {
-		for_each_cell_in_board(function (row, col) {
-			board_state[row][col] = 0;
+	var clear_board_state = function () {
+		self.for_each_cell(function (coord) {
+			set_cell(coord, VACANT);
 		});
-	}
+	};
 
 	var check_rep_invariants = function () {
 		if (lessThanEqualTo(height, 0) || lessThan(pad.get_height(), height)) {
@@ -72,7 +72,7 @@ var Board = function (pad, height, width) {
 			}
 		});
 		from_to_2D_quick_escape(0, height - 1, 0, width - 1, function (row, col) {
-			if (!(board_state[row][col] === 0) && !(board_state[row][col] === 1)) {
+			if (!(board_state[row][col] === VACANT) && !(board_state[row][col] === OCCUPIED)) {
 				printError("Invalid cell value. Cell (row, col): (" + row + ", " + col + ") has value " + board_state[row][col]);
 				rep_invariants_satisfied = false;
 				return false;
@@ -81,10 +81,31 @@ var Board = function (pad, height, width) {
 	};
 
 	var set_random_initial_state = function () {
-		for_each_cell_in_board(function (row, col) {
-			board_state[row][col] = Math.floor(Math.random() + DEFUALT_PERCENT_CELLS_OCCUPIED);
+		self.for_each_cell(function (coord) {
+			if ((Math.random() + DEFUALT_PERCENT_CELLS_OCCUPIED) >= 1) {
+				set_cell(coord, OCCUPIED);
+			} else {
+				set_cell(coord, VACANT);
+			}
 		});
-	}
+	};
+
+	var set_cell = function (coord, value) {
+		board_state[coord.row][coord.col] = value;
+	};
+
+	var get_cell = function (coord) {
+		return board_state[coord.row][coord.col];
+	};
+
+	var from_to_2D_board = function (from_row, to_row, from_col, to_col, f) {
+		if (from_row > to_row) return;
+		from_to(from_col, to_col, function (col) {
+			coord = Coord(col, from_row);
+			f(coord);
+		});
+		from_to_2D_board(from_row + 1, to_row, from_col, to_col, f);
+	};
 
 	/* METHODS FOR DRAWING ON THE PAD*/
 	// takes a Coord object in terms of the board's coordinate system and
@@ -93,11 +114,12 @@ var Board = function (pad, height, width) {
 		var x = coord.col * cell_width;
 		var y = coord.row * cell_height;
 		return Coord(x, y);
-	}
+	};
 
 	var draw_occupied_cell = function (coord) {
 		pad_coord = board_to_pad_coords(coord);
-		pad.draw_rectangle(pad_coord, cell_height, cell_width, LINE_WIDTH, BOARD_COLOR, OCCUPIED_COLOR);
+		pad.draw_rectangle(pad_coord, cell_height, cell_width, LINE_WIDTH, BOARD_COLOR, 
+			OCCUPIED_COLOR);
 	};
 
 	var draw_empty_board = function () {
@@ -108,60 +130,81 @@ var Board = function (pad, height, width) {
 
 	var redraw_board = function () {
 		draw_empty_board();
-		for_each_cell_in_board(function (row, col) {
-			coord = Coord(col, row);
-			var occ = get_cell(coord);
-			if (occ === OCCUPIED) {
-				draw_occupied_cell(coord)
-			}
+		occupied_cells = self.get_coords_of_all_occupied_cells();
+		occupied_cells.each(function (coord) {
+			draw_occupied_cell(coord);
 		});
 	};
-
-	var get_cell = function (coord) {
-		return board_state[coord.y][coord.x];
-	};
-
-	var for_each_cell_in_board = function (f) {
-		from_to_2D(0, height - 1, 0, width - 1, f);
-	};
-
-	initialize_empty_board();
-	check_rep_invariants();
-
-	return {
+	
+	// the object to be returned that holds all of board's "public" functions
+	var self = {
 		// Adds a piece at coord to the board's representation 
 		// and display
 		add: function (coord) {
-			board_state[coord.y][coord.x] = OCCUPIED;
+			set_cell(coord, OCCUPIED);
 			draw_occupied_cell(coord);
 		},
 
 		// Removes the piece at coord from the board's representation
 		// and display
 		remove: function (coord) {
-			board_state[coord.y][coord.x] = VACANT;
+			set_cell(coord, VACANT);
 			draw_vacant_cell(coord);
 		},
 
-		get: function (coord) {
-			return get_cell(coord);
+		// True if the cell at coord is occupied, false otherwise
+		is_cell_occupied: function (coord) {
+			return (get_cell(coord) === OCCUPIED);
 		},
 
+		// True if the cell at coord is vacant, false otherwise
+		is_cell_vacant: function (coord) {
+			return (get_cell(coord) === VACANT);
+		},
+
+		// Returns an array of the coords for each occupied cell
 		get_coords_of_all_occupied_cells: function () {
-
+			occupied = []
+			self.for_each_cell(function (coord) {
+				if (self.is_cell_occupied(coord)) {
+					occupied.push(coord);
+				}
+			});
+			return occupied;
 		},
 
-		// Resets the state of the board to a new initial state.
-		// If seed is provided, it will be used to randomly populate
-		// the board's new initial state.
+		// Apply the function f(coord) to each coord in the board
+		for_each_cell: function (f) {
+			from_to_2D_board(0, height - 1, 0, width - 1, f);
+		},
+
+		// Counts the number of occupied cells that touch the cell at coord
+		count_occupied_neighbors: function (coord) {
+			neighbors = [];
+			var count = 0;
+			var from_row = Math.max(coord.row - 1, 0);
+			var to_row = Math.min(coord.row + 1, height - 1);
+			var from_col = Math.max(coord.col - 1, 0);
+			var to_col = Math.min(coord.col + 1, width - 1);
+			from_to_2D_board(from_row, to_row, from_col, to_col, function (neighborCoord) {
+				if (!coord.equals(neighborCoord)) {
+					if (is_cell_occupied(neighborCoord)) {
+						count++;
+					}
+				}
+			});
+			return count;
+		},
+
+		// Resets the state of the board to a new initial state. Updates the display.
 		reset: function () {
 			set_random_initial_state();
 			redraw_board();
 		},
 
-		// Clears the board.
+		// Clears the board so it is completely empty Updates the display.
 		clear: function () {
-			clear_board();
+			clear_board_state();
 			draw_empty_board();
 		},
 
@@ -172,6 +215,11 @@ var Board = function (pad, height, width) {
 		get_width: function () {
 			return width;
 		}
-	}
+	};
+
+	initialize_empty_board();
+	check_rep_invariants();
+
+	return self;
 
 }

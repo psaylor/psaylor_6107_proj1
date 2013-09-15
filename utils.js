@@ -1,10 +1,10 @@
-from_to = function (from, to, f) {
+var from_to = function (from, to, f) {
 	if (from > to) return;
 	f(from);
 	from_to(from + 1, to, f);
 }
 
-from_to_quick_escape = function (from, to, f) {
+var from_to_quick_escape = function (from, to, f) {
 	if (from > to) return;
 	// quit if applying the function returned false
 	if (f(from) === false) {
@@ -14,7 +14,7 @@ from_to_quick_escape = function (from, to, f) {
 }
 
 // calls f(i,j) for each pair of numbers in the specified range
-from_to_2D = function (from_i, to_i, from_j, to_j, f) {
+var from_to_2D = function (from_i, to_i, from_j, to_j, f) {
 	if (from_i > to_i) return;
 	from_to(from_j, to_j, function (j) {
 		f(from_i, j);
@@ -22,7 +22,7 @@ from_to_2D = function (from_i, to_i, from_j, to_j, f) {
 	from_to_2D(from_i + 1, to_i, from_j, to_j, f);
 }
 
-from_to_2D_quick_escape = function (from_i, to_i, from_j, to_j, f) {
+var from_to_2D_quick_escape = function (from_i, to_i, from_j, to_j, f) {
 	if (from_i > to_i) return;
 	from_to_quick_escape(from_j, to_j, function (j) {
 		f(from_i, j);
@@ -37,11 +37,11 @@ Array.prototype.each = function (f) {
 	});
 }
 
-print = function (msg) {
+var print = function (msg) {
 	console.log(msg);
 }
 
-printError = function (errorMsg) {
+var printError = function (errorMsg) {
 	console.error(errorMsg);
 }
 

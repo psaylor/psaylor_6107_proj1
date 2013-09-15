@@ -14,3 +14,9 @@ could easily do the same for checkers game without having to rebuild the way the
 
 have board encapsulate all the drawing stuff so that life can just
 focus on the game rules
+
+iterating over all the board elements happened pretty frequently so abstracted it
+
+===
+put all of state handling logic in Life and then have only the view handled in Board?
+sounds like good use of MVC, b

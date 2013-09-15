@@ -2,7 +2,14 @@
 
 // constructor for 2D coordinate
 var Coord = function (x, y) {
-	return {x:x, y:y, row:y, col:x};
+	return {
+		x: x, 
+		y: y, 
+		row: y, 
+		col: x,
+		equals: function (coord) {
+			return ((x === coord.x) && (y === coord.y));
+		}};
 	};
 
 // constructor for color
