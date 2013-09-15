@@ -13,7 +13,7 @@ var Board = function (pad, height, width) {
 	var VACANT = 0;
 
 	var OCCUPIED_COLOR = Color(48, 131, 48); //green
-	var VACANT_COLOR = Color(0, 0, 0); // black
+	// var VACANT_COLOR = Color(0, 0, 0); // black
 	var BOARD_COLOR = Color(0, 0, 0); // black
 	var LINE_WIDTH = 1;
 	var BOARD_MARGIN = 1;
@@ -149,7 +149,7 @@ var Board = function (pad, height, width) {
 		// and display
 		remove: function (coord) {
 			set_cell(coord, VACANT);
-			draw_vacant_cell(coord);
+			// draw_vacant_cell(coord);
 		},
 
 		// True if the cell at coord is occupied, false otherwise
@@ -188,7 +188,7 @@ var Board = function (pad, height, width) {
 			var to_col = Math.min(coord.col + 1, width - 1);
 			from_to_2D_board(from_row, to_row, from_col, to_col, function (neighborCoord) {
 				if (!coord.equals(neighborCoord)) {
-					if (is_cell_occupied(neighborCoord)) {
+					if (self.is_cell_occupied(neighborCoord)) {
 						count++;
 					}
 				}
@@ -202,18 +202,31 @@ var Board = function (pad, height, width) {
 			redraw_board();
 		},
 
-		// Clears the board so it is completely empty Updates the display.
+		// Clears the board so it is completely empty. Updates the display.
 		clear: function () {
 			clear_board_state();
 			draw_empty_board();
 		},
 
-		// return height and width of the game board in terms of number of cells
+		// Returns the height of the board in terms of number of cells.
 		get_height: function () {
 			return height;
 		},
+
+		// Returns the width of the board in terms of number of cells.
 		get_width: function () {
 			return width;
+		},
+
+		toString: function () {
+			str = "";
+			for (var r=0; r < height; r++) {
+				for (var c=0; c < width; c++) {
+					str+= board_state[r][c] + ", ";
+				}
+				str+= "\n";
+			}
+			return str;
 		}
 	};
 

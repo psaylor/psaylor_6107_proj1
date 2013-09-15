@@ -9,6 +9,9 @@ var Coord = function (x, y) {
 		col: x,
 		equals: function (coord) {
 			return ((x === coord.x) && (y === coord.y));
+		},
+		toString: function (coord) {
+			return "Coord (x: " + x + ", y: " + y + ")";
 		}};
 	};
 
