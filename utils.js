@@ -45,6 +45,9 @@ var printError = function (errorMsg) {
 	console.error(errorMsg);
 }
 
+var printWarning = function (warningMsg) {
+	console.warn(warningMsg);
+}
 
 // testing utils
 var testUtils = function () {
@@ -59,15 +62,24 @@ var testUtils = function () {
 		if (isNumber(a) && isNumber(b)) {
 			return a < b;
 		}
-		return false;
+		printWarning("Compared non-numbers " + String(a) + " and " + String(b));
+		return a < b;
 	}
 
 	lessThanEqualTo = function (a, b) {
 		if (isNumber(a) && isNumber(b)) {
 			return a <= b;
 		}
-		return false;
+		printWarning("Compared non-numbers " + String(a) + " and " + String(b));
+		return a <= b;
 	}
 }();
 
-
+// same as Object.create in ECMAScript 5
+// return a fresh object whose prototype is o
+// note: borrowed from 6.170 example code for Set.js
+var createObject = function (o) {
+	var F = function () {}
+	F.prototype = o;
+	return new F();
+}
