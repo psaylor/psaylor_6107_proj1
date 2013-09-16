@@ -2,6 +2,7 @@ proj1
 =====
 
 Project 1
+http://psaylor.scripts.mit.edu/gol/
 
 Design Challenges
 =================
@@ -25,3 +26,9 @@ might be inefficient for life.js to not maintain the state of the board, but it 
 
 interesting idea for new feature-- be able to step backwards (up to like 5 times or something)
 animate life and death
+
+- behavior at the edge of the game board. seems standard to consider the edges as dead neighbors
+
+Third-party code citations:
+Bootstrap: http://getbootstrap.com/getting-started/#download
+JQuery: http://jquery.com/download/
