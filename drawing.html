@@ -1,21 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<!-- Load style sheets -->
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="font-awesome.min.css">
+
+	<!-- Load any supplemental Javascript libraries -->
+	<script type="text/javascript" src="external_js/jquery-1.9.0.min.js"></script>
+	<script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+
+	<!-- Load my own Javascript files and stylesheets -->
     <script src="graphics.js"></script>
     <script src="utils.js"></script>
-    <style>
-        #canvas_container {position: absolute; left: 100px; top: 100px; width: 400px; height: 400px;}
-    </style>
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
 <body>
+	<div class="container">
 
-<!--
-define the HTML canvas element that will hold the graphical output
--->
-<div id="canvas_container">
-    <canvas id="canvas"></canvas>
-</div>
+		<!-- Main component for a primary marketing message or call to action -->
+		<div class="jumbotron">
+	        <h1 class="title">Conway's Game of Life</h1>
+  
+	        <div id="canvas_container" class="leftPadded">
+			    <canvas id="canvas"></canvas>
+			</div>
+
+			<p>Conway's Game of Life fascinated the world by showing that complex patterns could arise out of simple rules applied to seeming chaos. The game features a 2D grid of cells, each of which lives or dies based on its interaction with its neighbors as follows:
+			</p>
+
+			<ol> 
+				<li>Any live cell with fewer than two live neighbors dies, as if by underpopulation.</li>
+				<li> Any live cell with more than three live neighbors dies, as if by overcrowding.</li>
+				<li> Any live cell with two or three live neighbors lives on to the next generation.</li>
+				<li> Any dead cell with exactly three live neighbors becomes a live cell in the next generation.</li>
+			</ol>
+			
+
+      </div> <!-- /jumbotron -->
+
+    </div> <!-- /container -->
 
 <!--
 execute the JavaScript

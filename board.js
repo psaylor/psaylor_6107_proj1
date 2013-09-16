@@ -125,7 +125,7 @@ var Board = function (pad, height, width) {
 	var draw_empty_board = function () {
 		pad.clear();
 		pad.draw_rectangle(Coord(0, 0), pad.get_width(), pad.get_height(), 
-			BOARD_MARGIN, BOARD_COLOR);
+			BOARD_MARGIN, BOARD_COLOR, BOARD_COLOR);
 	};
 
 	var redraw_board = function () {

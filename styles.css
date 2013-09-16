@@ -1,0 +1,9 @@
+#canvas_container {
+	width: 400px; 
+	height: 400px;
+	margin: 20px;
+}
+
+h1.title {
+	margin-top: 0px;
+}
