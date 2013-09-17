@@ -1,34 +1,25 @@
-proj1
-=====
+Project 1 is live at http://psaylor.scripts.mit.edu/gol/
 
-Project 1
-http://psaylor.scripts.mit.edu/gol/
+Third-party code citations:
+	Bootstrap: http://getbootstrap.com/getting-started/#download
+	JQuery: http://jquery.com/download/
+	JUnit: http://qunitjs.com/
 
 Design Challenges
 =================
-where should the state be maintained? by board or by life?
+1. Should there be one object that handles everything, or should the game board be separate from the game rules?
+	If one object handles everything, then the question of who maintains the state (discussed next) disappears, which is one advantage. It also avoids the challenge of creating a meaningful interaction between the two other objects. However, the board and the rules are distinct notions and can very intuitively be separated. In terms of reusability, it would be better to have a board representation that I could reuse later to make a checkers game, and similarly if the rules are abstracted away from the board, then any abstract board could be used to create a different looking or better-performing game. Moreover, this follows the paradigm of separation of concerns, since the board doesn't have to worry about what game is being played on it or what the rules are. Thus I decided to make separate abstractions for a board (board.js) and the game rules (life.js).
 
-if by board, then could reuse it for a checkers game more easily
-have life be separate and make calls to the board that reflect the
-rules of the game
-could easily do the same for checkers game without having to rebuild the way the board and the graphics work much
+2. Since the game board and the game rules are separated, where should the state of the game be maintained? By board.js or by life.js?
+	Applying the rules requires detailed knowledge of the state of the board, so if life.js maintains the state, then it has direct access to all those details; otherwise, board.js needs to have a way to expose its state to other objects. If the board maintains the state, then the board could easily be reused for other games without each game having to re-implement how the state should be represented. Since this seemed like a better general purpose solution, I had board.js maintain the state of the game.
 
-have board encapsulate all the drawing stuff so that life can just
-focus on the game rules
+Notes on Design
+===============
+Board is an abstraction for the life game board that maintains the state of the board
+and provides functions for 
+1. checking the state (count_occupied_neighbors, etc.) 
+2. modifying that state (add/remove/reset, etc.)
+3. visually representing that state
+The state of the board will be visually represented on the provided pad.
 
-iterating over all the board elements happened pretty frequently so abstracted it
-
-===
-put all of state handling logic in Life and then have only the view handled in Board?
-sounds like good use of MVC, b
-
-might be inefficient for life.js to not maintain the state of the board, but it does separate the rules from the representation of the board and display
-
-interesting idea for new feature-- be able to step backwards (up to like 5 times or something)
-animate life and death
-
-- behavior at the edge of the game board. seems standard to consider the edges as dead neighbors
-
-Third-party code citations:
-Bootstrap: http://getbootstrap.com/getting-started/#download
-JQuery: http://jquery.com/download/
+Life is an abstraction for the rules of the game of life. It takes a Board object to play the game on, and in each generation it reads the state of the board, applies the rules to determine the next generation, and updates the board with the next generation.sec

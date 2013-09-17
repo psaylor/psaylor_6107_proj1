@@ -67,44 +67,20 @@ var Life = function (board) {
 			generation_number++;
 			life_changes = get_life_changes();
 			apply_life_changes(life_changes);
-			// print(board.toString());
 	};
+
+	// Returns the number of the current generation (not thread-safe)
+	self.get_current_generation_number = function () {
+		return generation_number;
+	};
+
+	if (DEBUG) {
+		self.get_life_changes = function () {
+			return get_life_changes();
+		};
+	}
 
 	Object.freeze(self);
 	return self;
 };
-
-
-
-(function () {
-	
-	var UPDATE_INTERVAL = 1 * 1000; // 1 second
-
-	// create the drawing pad object and associate with the canvas
-	var pad = Pad(document.getElementById('canvas'));
-	pad.clear();
-
-	// create the board object and get an initial state
-	board = Board(pad); // (global on purpose for convenience)
-	board.reset();
-
-	// create the life object
-	life = Life(board); // (global on purpose for convenience)
-
-	// update life every UPDATE_INTERVAL ms
-	var interval = window.setInterval(life.update, UPDATE_INTERVAL);
-
-	// Stop the game of life at the current generation
-	// (global on purpose for convenience)
-	stopLife = function () {
-		window.clearInterval(interval);
-	};
-
-	// Resume the game of life from the current generation
-	// (global on purpose for convenience)
-	resumeLife = function () {
-		interval = window.setInterval(life.update, UPDATE_INTERVAL);
-	};
-
-}) ();
 

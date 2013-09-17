@@ -3,7 +3,7 @@
 // 1. checking the state (count_occupied_neighbors, etc.) 
 // 2. modifying that state (add/remove/reset, etc.)
 // 3. visually representing that state
-// The state of the board will be visually represented on  the provided pad.
+// The state of the board will be visually represented on the provided pad.
 // An optional height and width may be provided (defaults to DEFAULT_HEIGHT
 // and DEFAULT_WIDTH otherwise or if the provided value is larger than the 
 // corresponding dimension of the pad), which determines the number of cells on the board
@@ -65,16 +65,20 @@ var Board = function (pad, height, width) {
 		self.for_each_cell(function (coord) {
 			set_cell(coord, VACANT);
 		});
+		if (DEBUG) {
+			check_rep_invariants();
+		}
 	};
 
 	// Check the rep invariants of Board
 	var check_rep_invariants = function () {
 		if (lessThanEqualTo(height, 0) || lessThan(pad.get_height(), height)) {
-			printError("Invalid height.");
+			printError(pad.get_height());
+			printError("Invalid height " + String(height));
 			return false;
 		}
 		if (lessThanEqualTo(width, 0) || lessThan(pad.get_width(), width)) {
-			printError("Invalid width.");
+			printError("Invalid width " + String(width));
 			return false;
 		}
 
@@ -104,12 +108,15 @@ var Board = function (pad, height, width) {
 				set_cell(coord, VACANT);
 			}
 		});
+		if (DEBUG) {
+			check_rep_invariants();
+		}
 	};
 
 	// Sets the cell at coord in board_state to value if value is an appropriate type and if coord is in range
 	// Returns true if the cell was set to value, false otherwise
 	var set_cell = function (coord, value) {
-		if (lessThan(coord.row, height) && lessThan(coord.col, width)) {
+		if (lessThan(coord.row, height) && lessThan(coord.col, width) && lessThanEqualTo(0, coord.row) && lessThanEqualTo(0, coord.col)) {
 			if ((value === OCCUPIED) || (value === VACANT)) {
 				board_state[coord.row][coord.col] = value;
 				return true;
@@ -118,6 +125,9 @@ var Board = function (pad, height, width) {
 			}
 		} else {
 			printError("Coord " + String(coord) + " out of range");
+		}
+		if (DEBUG) {
+			check_rep_invariants();
 		}
 		return false;
 	};
@@ -155,6 +165,7 @@ var Board = function (pad, height, width) {
 
 	// Takes a Coord object in terms of the board's coordinate system and
 	// draws an occupied at the corresponding location on the pad
+	// Does not mutate board_state.
 	var draw_occupied_cell = function (coord) {
 		pad_coord = board_to_pad_coords(coord);
 		pad.draw_rectangle(pad_coord, cell_height, cell_width, LINE_WIDTH, BOARD_COLOR, 
@@ -163,20 +174,21 @@ var Board = function (pad, height, width) {
 
 	// Takes a Coord object in terms of the board's coordinate system and
 	// draws a vacant at the corresponding location on the pad
+	// Does not mutate board_state.
 	var draw_vacant_cell = function (coord) {
 		pad_coord = board_to_pad_coords(coord);
 		pad.draw_rectangle(pad_coord, cell_height, cell_width, LINE_WIDTH, BOARD_COLOR, 
 			VACANT_COLOR);
 	};
 
-	// Clears the pad
+	// Clears the pad. Does not mutate board_state.
 	var draw_empty_board = function () {
 		pad.clear();
 		pad.draw_rectangle(Coord(0, 0), pad.get_width(), pad.get_height(), 
 			BOARD_MARGIN, BOARD_COLOR, BOARD_COLOR);
 	};
 
-	// Redraws the whole pad based on the current board_state
+	// Redraws the whole pad based on the current board_state. Does not mutate board_state.
 	var redraw_board = function () {
 		draw_empty_board();
 		occupied_cells = self.get_coords_of_all_occupied_cells();
@@ -193,6 +205,9 @@ var Board = function (pad, height, width) {
 	self.add = function (coord) {
 		set_cell(coord, OCCUPIED);
 		draw_occupied_cell(coord);
+		if (DEBUG) {
+			check_rep_invariants();
+		}
 	};
 
 	// Removes the piece at coord from the board's representation
@@ -200,6 +215,9 @@ var Board = function (pad, height, width) {
 	self.remove = function (coord) {
 		set_cell(coord, VACANT);
 		draw_vacant_cell(coord);
+		if (DEBUG) {
+			check_rep_invariants();
+		}
 	};
 
 	// True if the cell at coord is occupied, false otherwise
@@ -250,6 +268,9 @@ var Board = function (pad, height, width) {
 	self.reset = function () {
 		set_random_initial_state();
 		redraw_board();
+		if (DEBUG) {
+			check_rep_invariants();
+		}
 	},
 
 	// Clears the board so it is completely empty. Updates the display.
@@ -281,7 +302,9 @@ var Board = function (pad, height, width) {
 	}
 
 	initialize_empty_board();
-	check_rep_invariants();
+	if (DEBUG) {
+		check_rep_invariants();
+	}
 	Object.freeze(self);
 	return self;
 }

@@ -8,13 +8,15 @@
 	<link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
 	
 	<!-- Load any external Javascript libraries -->
-	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-	<script type="text/javascript" src="http://code.jquery.com/qunit/qunit-1.12.0.js"></script>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 	<script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
 
 	<!-- Load my own Javascript files and stylesheets -->
-    <script src="graphics.js"></script>
-    <script src="utils.js"></script>
+    <script type="text/javascript" src="graphics.js"></script>
+    <script type="text/javascript" src="utils.js"></script>
+    <script type="text/javascript" src="board.js"></script>
+	<script type="text/javascript" src="life.js"></script>
+	<script type="text/javascript" src="setup.js"></script>
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
@@ -25,8 +27,8 @@
 		<div class="jumbotron">
 	        <h1 class="title">Conway's Game of Life</h1>
   
-	        <div id="canvas_container" class="leftPadded">
-			    <canvas id="canvas"></canvas>
+	        <div id="canvas_container">
+			    <canvas id="canvas" height="400" width="400"></canvas>
 			</div>
 
 			<small>Conway's Game of Life fascinated the world by showing that complex patterns could arise out of simple rules applied to seeming chaos. The game features a 2D grid of cells, each of which lives or dies based on its interaction with its neighbors as follows:
@@ -46,12 +48,6 @@
       </div> <!-- /jumbotron -->
 
     </div> <!-- /container -->
-
-<!--
-execute the JavaScript
--->
-<script src="board.js"></script>
-<script src="life.js"></script>
 
 </body>
 </html>
