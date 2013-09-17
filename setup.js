@@ -9,7 +9,7 @@ $(function () {
 	pad.clear();
 
 	// create the board object and get an initial state
-	board = Board(pad, 4, 4); // (global on purpose for convenience)
+	board = Board(pad); // (global on purpose for convenience)
 	board.reset();
 
 	// create the life object
