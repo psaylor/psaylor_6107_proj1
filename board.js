@@ -13,10 +13,10 @@ var Coord = function (x, y) {
 		}};
 	};
 
-// An abstraction for the life game board that maintains the state of the board
+// A classic abstraction for a game board that maintains the state of the board
 // and provides functions for 
-// 1. checking the state (count_occupied_neighbors, etc.) 
-// 2. modifying that state (add/remove/reset, etc.)
+// 1. checking the state (is_occupied/is_vacant, get all occupied cells, etc.) 
+// 2. modifying that state (add/remove/clear, etc.)
 // An optional height and width may be provided (defaults to DEFAULT_HEIGHT
 // and DEFAULT_WIDTH otherwise), which determines the number of cells on the board
 var Board = function (height, width) {
@@ -40,7 +40,6 @@ var Board = function (height, width) {
 		width = DEFAULT_WIDTH;
 	}
 
-
 	// An array of arrays representing the 2D board state
 	// If board_state[row][col] is 0, then the cell at x=col and y=row
 	// is vacant; if board_state[row][col] is 1, it is occupied.
@@ -50,6 +49,11 @@ var Board = function (height, width) {
 	// 2. the number of cols, board_state[r].length === width for 0<=r<height
 	// 3. board_state[r][c] is either 0 or 1 for all r,c
 	var board_state;
+
+	// Registered listeners on the add function
+	var listeners_of_add = [];
+	// Registered listeners on the remove function
+	var listeners_of_remove = [];
 
 	// Initialize the board_state object as a 2D array of all vacant cells
 	var initialize_empty_board = function () {
@@ -98,7 +102,6 @@ var Board = function (height, width) {
 			}
 		});
 	};
-
 
 	// Sets the cell at coord in board_state to value if value is an appropriate type and if coord is in range
 	// Returns true if the cell was set to value, false otherwise
@@ -150,6 +153,9 @@ var Board = function (height, width) {
 		if (DEBUG) {
 			check_rep_invariants();
 		}
+		listeners_of_add.each( function (listener) {
+			listener(coord);
+		});
 	};
 
 	// Removes the piece at coord from the board's representation
@@ -159,6 +165,23 @@ var Board = function (height, width) {
 		if (DEBUG) {
 			check_rep_invariants();
 		}
+		listeners_of_remove.each( function (listener) {
+			listener(coord);
+		});
+	};
+
+	// Register a listener function on the add function.
+	// The listener should take a coord as the first parameter.
+	// The listener cannot be later removed.
+	self.register_listener_on_add = function (listener) {
+		listeners_of_add.push(listener);
+	};
+
+	// Register a listener function on the remove function
+	// The listener should take a coord as the first parameter
+	// The listener cannot be later removed.
+	self.register_listener_on_remove = function (listener) {
+		listeners_of_remove.push(listener);
 	};
 
 	// True if the cell at coord is occupied, false otherwise

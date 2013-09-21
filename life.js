@@ -18,7 +18,10 @@ var Life = function (board) {
 	// next generation based on their neighbors.
 	// Returns a LifeChanges object for the alive and dead coordinates.
 	var get_life_changes = function () {
-		print("Generation " + generation_number);
+		if (DEBUG) {
+			print("Generation " + generation_number);
+		}
+		
 		alive_coords = [];
 		dead_coords = [];
 		board.for_each_cell(function (coord) {

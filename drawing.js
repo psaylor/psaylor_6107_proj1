@@ -1,75 +1,103 @@
-/* METHODS FOR DRAWING ON THE PAD */
+// An abstraction for a visible grid built of DOM elements
+// An optional height and width may be provided (defaults to DEFAULT_HEIGHT
+// and DEFAULT_WIDTH otherwise), which determines the number of cells in the grid
+var DrawableGrid = function (height, width) {
 
-var draw = function () {
-			
+	var DEFAULT_HEIGHT = 40;
+	var DEFAULT_WIDTH = 40;
 
-	// the color of an occupied cell on the pad (green)
-	var OCCUPIED_COLOR = Color(48, 131, 48);
-	// the color of a vacant cell on the pad (black)
-	var VACANT_COLOR = Color(0, 0, 0); 
-	var BOARD_COLOR = Color(0, 0, 0); // black
-	var LINE_WIDTH = 1;
-	var BOARD_MARGIN = 1;
+	var OCCUPIED_CLASS = "muted-red";
 
+	// use the default values if 
+	// 1. height or width is undefined
+	// 2. height or width is the wrong type
+	if ((height === undefined) || (!isNumber(height))) {
+		height = DEFAULT_HEIGHT;
+	}
+	if ((width === undefined) || (!isNumber(width))) {
+		width = DEFAULT_WIDTH;
+	}
+
+	// Creates a new id string to be set for the id attribute of the cell at row r, column c
+	var create_id = function (r, c) {
+		return "Cell" + String(r) + "-" + String(c);
+	};
+
+	// Returns the cell at row r, column c in the grid
+	var get_cell_by_id = function (r, c) {
+		var id = "#" + create_id(r, c);
+		var cell = $(id);
+		return $(id);
+	};
+
+	// Creates a new cell to be placed at row r, column c in the grid
+	// Sets its classes, attributes, and onClick listeners
+	var create_cell = function (r, c) {
+		var cell = $("<td>")
+					.addClass("cell")
+					.attr("id", create_id(r,c));
+		cell.click( function (event) {
+			if (DEBUG) {
+				print("Clicked Cell " + r + ", " + c );
+			}
+			$(this).toggleClass(OCCUPIED_CLASS);
+			}
+		);
+		return cell;
+	};
+
+	// Creates the DOM elements for table, rows, and cells, and adds it to the HTML
+	// NOTE: Must have an HTML element with id="board_container"
+	var create_grid = function () {
+		print("Creating the grid for the board");
+		var table = $("<table>");
+		table.addClass("table table-bordered");
+
+		for (var r = 0; r < height; r++) {
+			var row = $("<tr>");
+			table.append(row);
+
+			for (var c = 0; c < width; c++) {
+				var cell = create_cell(r, c);
+				row.append(cell);
+			}
+		}
+
+		$("#board_container").append(table);
+	}; 
+	
+	create_grid();
+
+	// the object to be returned that holds all of draw's "public" functions
+	var self = createObject(Life.prototype);
+
+	// Takes a Coord object in terms of the grid's coordinate system and
+	// puts an occupied at the corresponding location on the grid
+	self.draw_occupied_cell = function (coord) {
+		if (DEBUG) {
+			// print("Drawing occupied cell at " + coord);
+		}
+		var cell = get_cell_by_id(coord.row, coord.col);
+		cell.addClass(OCCUPIED_CLASS);
+	};
+
+	// Takes a Coord object in terms of the board's coordinate system and
+	// puts a vacant at the corresponding location on the grid
+	self.draw_vacant_cell = function (coord) {
+		if (DEBUG) {
+			// print("Drawing vacant cell at " + coord);
+		}
+		get_cell_by_id(coord.row, coord.col).removeClass(OCCUPIED_CLASS);
+	};
+
+	// Clears the grid.
+	self.draw_empty_grid = function () {
+		$("td.cell").removeClass(OCCUPIED_CLASS);
+	};
+
+	Object.freeze(self);
+	return self;
 };
 
-	// Takes a Coord object in terms of the board's coordinate system and
-	// returns a Coord object in terms of the pad's coordinate system
-	var board_to_pad_coords = function (coord) {
-		var x = coord.col * cell_width;
-		var y = coord.row * cell_height;
-		return Coord(x, y);
-	};
 
-	// Takes a Coord object in terms of the board's coordinate system and
-	// draws an occupied at the corresponding location on the pad
-	// Does not mutate board_state.
-	var draw_occupied_cell = function (coord) {
-		pad_coord = board_to_pad_coords(coord);
-		pad.draw_rectangle(pad_coord, cell_height, cell_width, LINE_WIDTH, BOARD_COLOR, 
-			OCCUPIED_COLOR);
-	};
-
-	// Takes a Coord object in terms of the board's coordinate system and
-	// draws a vacant at the corresponding location on the pad
-	// Does not mutate board_state.
-	var draw_vacant_cell = function (coord) {
-		pad_coord = board_to_pad_coords(coord);
-		pad.draw_rectangle(pad_coord, cell_height, cell_width, LINE_WIDTH, BOARD_COLOR, 
-			VACANT_COLOR);
-	};
-
-	// Clears the pad. Does not mutate board_state.
-	var draw_empty_board = function () {
-		pad.clear();
-		pad.draw_rectangle(Coord(0, 0), pad.get_width(), pad.get_height(), 
-			BOARD_MARGIN, BOARD_COLOR, BOARD_COLOR);
-	};
-
-	// Redraws the whole pad based on the current board_state. Does not mutate board_state.
-	var redraw_board = function () {
-		draw_empty_board();
-		occupied_cells = self.get_coords_of_all_occupied_cells();
-		occupied_cells.each(function (coord) {
-			draw_occupied_cell(coord);
-		});
-	};
-
-		// // Randomly sets each cell to either occupied or vacant according to DEFUALT_PERCENT_CELLS_OCCUPIED 
-	// var set_random_initial_state = function () {
-	// 	self.for_each_cell(function (coord) {
-	// 		if ((Math.random() + DEFUALT_PERCENT_CELLS_OCCUPIED) >= 1) {
-	// 			set_cell(coord, OCCUPIED);
-	// 		} else {
-	// 			set_cell(coord, VACANT);
-	// 		}
-	// 	});
-	// 	if (DEBUG) {
-	// 		check_rep_invariants();
-	// 	}
-	// };
-
-
-	var cell_height = pad.get_height() / height;
-	var cell_width = pad.get_width() / width;	
 

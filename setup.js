@@ -1,25 +1,88 @@
 // Run this function when the window is loaded to set up everything
 $(function () {
 	
+	// Randomly sets each cell to either occupied or vacant according to DEFUALT_PERCENT_CELLS_OCCUPIED 
+	var set_random = function () {
+		grid.draw_empty_grid();
+		board.clear();
+		board.for_each_cell(function (coord) {
+			if ((Math.random() + DEFUALT_PERCENT_CELLS_OCCUPIED) >= 1) {
+				board.add(coord);
+			}
+		});
+	};
+
 	var UPDATE_INTERVAL = 1 * 1000; // 1 second
 	DEBUG = true; // (global on purpose for convenience)
+	var SIZE = 40;
 
-	// create the DOM elements for the game
-	
-// (approximately) what fraction of cells should be alive in the random initial state
+	// create the DOM elements for the game		
+	grid = DrawableGrid(SIZE, SIZE);
+
+	// (approximately) what fraction of cells should be alive in the random initial state
 	var DEFUALT_PERCENT_CELLS_OCCUPIED = .4;
 	// create the board object and get an initial state
-	board = Board(); // (global on purpose for convenience)
+	board = Board(SIZE, SIZE); // (global on purpose for convenience)
+	board.register_listener_on_add(grid.draw_occupied_cell);
+	board.register_listener_on_remove(grid.draw_vacant_cell);
+
+	set_random();
 
 	// create the life object
 	life = Life(board); // (global on purpose for convenience)
 
+	var playing = false;
+
+	// Set the play button to resume the game only if not playing
+	$("#play-btn").click(function (event) {
+		if (playing === false) {
+			print("Resuming game");
+			playing = true;
+			resumeLife();
+		}
+	});
+
+	// Set the pause button to pause the game only if playing
+	$("#pause-btn").click(function (event) {
+		if (playing === true) {
+			print("Pausing game");
+			playing = false
+			pauseLife();
+		}
+	});
+
+	// Set the clear button to pause the game and reset the 
+	// game to a random state
+	$("#clear-btn").click(function (event) {
+		print("Clearing board");
+		pauseLife();
+		grid.draw_empty_grid();
+		board.clear();
+	});
+
+	// Set the random button to pause the game and reset the game 
+	// to a random state
+	$("#random-btn").click(function (event) {
+		print("Setting random initial state");
+		pauseLife();
+		set_random();
+	});
+
+	// Set the separate button to pause the game and reset the board,
+	// separating the cells into 4 quadrants of different colors
+	// where the rules of life are modified
+	$("#separate-btn").click(function (event) {
+		print("Separating the cells");
+		pauseLife();
+	});
+
+
 	// update life every UPDATE_INTERVAL ms
-	var interval = window.setInterval(life.update, UPDATE_INTERVAL);
+	var interval;
 
 	// Stop the game of life at the current generation
 	// (global on purpose for convenience)
-	stopLife = function () {
+	pauseLife = function () {
 		window.clearInterval(interval);
 	};
 
@@ -27,6 +90,10 @@ $(function () {
 	// (global on purpose for convenience)
 	resumeLife = function () {
 		interval = window.setInterval(life.update, UPDATE_INTERVAL);
+	};
+
+	stepLife = function () {
+		life.update();
 	};
 
 });
