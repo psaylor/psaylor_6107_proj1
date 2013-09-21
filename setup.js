@@ -4,13 +4,12 @@ $(function () {
 	var UPDATE_INTERVAL = 1 * 1000; // 1 second
 	DEBUG = true; // (global on purpose for convenience)
 
-	// create the drawing pad object and associate with the canvas
-	var pad = Pad(document.getElementById('canvas'));
-	pad.clear();
-
+	// create the DOM elements for the game
+	
+// (approximately) what fraction of cells should be alive in the random initial state
+	var DEFUALT_PERCENT_CELLS_OCCUPIED = .4;
 	// create the board object and get an initial state
-	board = Board(pad); // (global on purpose for convenience)
-	board.reset();
+	board = Board(); // (global on purpose for convenience)
 
 	// create the life object
 	life = Life(board); // (global on purpose for convenience)
