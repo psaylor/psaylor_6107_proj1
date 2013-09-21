@@ -18,6 +18,8 @@ var DrawableGrid = function (height, width) {
 		width = DEFAULT_WIDTH;
 	}
 
+	var cell_click_listeners = [];
+
 	// Creates a new id string to be set for the id attribute of the cell at row r, column c
 	var create_id = function (r, c) {
 		return "Cell" + String(r) + "-" + String(c);
@@ -41,6 +43,9 @@ var DrawableGrid = function (height, width) {
 				print("Clicked Cell " + r + ", " + c );
 			}
 			$(this).toggleClass(OCCUPIED_CLASS);
+			cell_click_listeners.each( function (listener) {
+				listener(Coord(c, r));
+			});
 			}
 		);
 		return cell;
@@ -93,6 +98,12 @@ var DrawableGrid = function (height, width) {
 	// Clears the grid.
 	self.draw_empty_grid = function () {
 		$("td.cell").removeClass(OCCUPIED_CLASS);
+	};
+
+	// Register a listener function to be called whenever a cell in the grid
+	// is clicked. The listener should accept a coord as a parameter
+	self.register_cell_click_listener = function (listener) {
+		cell_click_listeners.push(listener);
 	};
 
 	Object.freeze(self);

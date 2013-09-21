@@ -23,8 +23,11 @@ $(function () {
 	var DEFUALT_PERCENT_CELLS_OCCUPIED = .4;
 	// create the board object and get an initial state
 	board = Board(SIZE, SIZE); // (global on purpose for convenience)
+
+	// Register listeners between board and grid (model and view)
 	board.register_listener_on_add(grid.draw_occupied_cell);
 	board.register_listener_on_remove(grid.draw_vacant_cell);
+	grid.register_cell_click_listener(board.add);
 
 	set_random();
 
@@ -55,7 +58,7 @@ $(function () {
 	// game to a random state
 	$("#clear-btn").click(function (event) {
 		print("Clearing board");
-		pauseLife();
+		$("#pause-btn").click();
 		grid.draw_empty_grid();
 		board.clear();
 	});
@@ -64,7 +67,7 @@ $(function () {
 	// to a random state
 	$("#random-btn").click(function (event) {
 		print("Setting random initial state");
-		pauseLife();
+		$("#pause-btn").click();
 		set_random();
 	});
 
@@ -73,7 +76,7 @@ $(function () {
 	// where the rules of life are modified
 	$("#separate-btn").click(function (event) {
 		print("Separating the cells");
-		pauseLife();
+		$("#pause-btn").click();
 	});
 
 
