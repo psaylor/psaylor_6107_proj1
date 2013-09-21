@@ -7,14 +7,14 @@ $(function () {
 		board.clear();
 		board.for_each_cell(function (coord) {
 			if ((Math.random() + DEFUALT_PERCENT_CELLS_OCCUPIED) >= 1) {
-				board.add(coord);
+				board.set(coord);
 			}
 		});
 	};
 
 	var UPDATE_INTERVAL = 1 * 1000; // 1 second
 	DEBUG = true; // (global on purpose for convenience)
-	var SIZE = 40;
+	var SIZE = 10;
 
 	// create the DOM elements for the game		
 	grid = DrawableGrid(SIZE, SIZE);
@@ -24,15 +24,15 @@ $(function () {
 	// create the board object and get an initial state
 	board = Board(SIZE, SIZE); // (global on purpose for convenience)
 
-	// Register listeners between board and grid (model and view)
-	board.register_listener_on_add(grid.draw_occupied_cell);
-	board.register_listener_on_remove(grid.draw_vacant_cell);
-	grid.register_cell_click_listener(board.add);
-
-	set_random();
-
 	// create the life object
 	life = Life(board); // (global on purpose for convenience)
+
+	// Register listeners between board and grid (model and view)
+	board.register_listener_on_set(grid.draw_occupied_cell);
+	board.register_listener_on_clear(grid.draw_vacant_cell);
+	grid.register_cell_click_listener(life.set_alive);
+	
+	life.randomize();
 
 	var playing = false;
 
@@ -60,7 +60,7 @@ $(function () {
 		print("Clearing board");
 		$("#pause-btn").click();
 		grid.draw_empty_grid();
-		board.clear();
+		life.reset();
 	});
 
 	// Set the random button to pause the game and reset the game 
@@ -68,7 +68,7 @@ $(function () {
 	$("#random-btn").click(function (event) {
 		print("Setting random initial state");
 		$("#pause-btn").click();
-		set_random();
+		life.randomize();
 	});
 
 	// Set the separate button to pause the game and reset the board,
@@ -77,6 +77,7 @@ $(function () {
 	$("#separate-btn").click(function (event) {
 		print("Separating the cells");
 		$("#pause-btn").click();
+		life.separate_by_quadrant();
 	});
 
 

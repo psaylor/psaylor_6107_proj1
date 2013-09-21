@@ -24,9 +24,6 @@ var Board = function (height, width) {
 	var DEFAULT_HEIGHT = 40;
 	var DEFAULT_WIDTH = 40;
 
-
-	// value of an occupied cell
-	var OCCUPIED = 1;
 	// value of a vacant cell
 	var VACANT = 0;
 
@@ -50,11 +47,12 @@ var Board = function (height, width) {
 	// 3. board_state[r][c] is either 0 or 1 for all r,c
 	var board_state;
 
-	// Registered listeners on the add function
-	var listeners_of_add = [];
-	// Registered listeners on the remove function
-	var listeners_of_remove = [];
+	// Registered listeners on the set_cell function
+	var listeners_of_set = [];
+	// Registered listeners on the clear_cell function
+	var listeners_of_clear = [];
 
+	
 	// Initialize the board_state object as a 2D array of all vacant cells
 	var initialize_empty_board = function () {
 		board_state = [];
@@ -67,7 +65,7 @@ var Board = function (height, width) {
 	// Clear all cells in board_state so they are vacant
 	var clear_board_state = function () {
 		self.for_each_cell(function (coord) {
-			set_cell(coord, VACANT);
+			self.clear_cell(coord);
 		});
 		if (DEBUG) {
 			check_rep_invariants();
@@ -94,42 +92,6 @@ var Board = function (height, width) {
 				return false;
 			}
 		});
-		from_to_2D_quick_escape(0, height - 1, 0, width - 1, function (row, col) {
-			if (!(board_state[row][col] === VACANT) && !(board_state[row][col] === OCCUPIED)) {
-				printError("Invalid cell value. Cell (row, col): (" + row + ", " + col + ") has value " + board_state[row][col]);
-				rep_invariants_satisfied = false;
-				return false;
-			}
-		});
-	};
-
-	// Sets the cell at coord in board_state to value if value is an appropriate type and if coord is in range
-	// Returns true if the cell was set to value, false otherwise
-	var set_cell = function (coord, value) {
-		if (lessThan(coord.row, height) && lessThan(coord.col, width) && lessThanEqualTo(0, coord.row) && lessThanEqualTo(0, coord.col)) {
-			if ((value === OCCUPIED) || (value === VACANT)) {
-				board_state[coord.row][coord.col] = value;
-				return true;
-			} else {
-				printError("Invalid value of type " + String(typeof(value)) + ": " + String(value));
-			}
-		} else {
-			printError("Coord " + String(coord) + " out of range");
-		}
-		if (DEBUG) {
-			check_rep_invariants();
-		}
-		return false;
-	};
-
-	// Returns the value of the cell at coord in board_state if coord is in range, otherwise undefined
-	var get_cell = function (coord) {
-		if (lessThan(coord.row, height) && lessThan(coord.col, width)) {
-			return board_state[coord.row][coord.col];
-		} else {
-			printError("Coord " + String(coord) + " out of range");
-			return undefined;
-		}
 	};
 
 	// A recursive helper method to replace a nested for loop. It creates a Coord object from 
@@ -146,86 +108,86 @@ var Board = function (height, width) {
 	// the object to be returned that holds all of board's "public" functions
 	var self = createObject(Board.prototype);
 
-	// Adds a piece at coord to the board's representation 
-	// and display
-	self.add = function (coord) {
-		set_cell(coord, OCCUPIED);
+	// Sets the cell at coord in board_state to value if coord is in range
+	// Returns true if the cell was set to value, false otherwise
+	self.set_cell = function (coord, value) {
+		if (lessThan(coord.row, height) && lessThan(coord.col, width) && lessThanEqualTo(0, coord.row) && lessThanEqualTo(0, coord.col)) {
+			board_state[coord.row][coord.col] = value;
+			listeners_of_set.each( function (listener) {
+				listener(coord, value);
+			});
+			return true;
+		} else {
+			printError("Coord " + String(coord) + " out of range");
+		}
 		if (DEBUG) {
 			check_rep_invariants();
 		}
-		listeners_of_add.each( function (listener) {
-			listener(coord);
-		});
+		return false;
 	};
 
-	// Removes the piece at coord from the board's representation
-	// and display
-	self.remove = function (coord) {
-		set_cell(coord, VACANT);
+	// Clears the cell at coord in board_state by setting its value to 0 if coord is in range
+	// Returns true if the cell was successfully cleared, false otherwise
+	self.clear_cell = function (coord) {
+		if (lessThan(coord.row, height) && lessThan(coord.col, width) && lessThanEqualTo(0, coord.row) && lessThanEqualTo(0, coord.col)) {
+			board_state[coord.row][coord.col] = 0;
+			listeners_of_clear.each( function (listener) {
+				listener(coord);
+			});
+			return true;
+		} else {
+			printError("Coord " + String(coord) + " out of range");
+		}
 		if (DEBUG) {
 			check_rep_invariants();
 		}
-		listeners_of_remove.each( function (listener) {
-			listener(coord);
-		});
+		return false;
+	}
+
+	// Returns the value of the cell at coord in board_state if coord is in range, otherwise undefined
+	self.get_cell = function (coord) {
+		if (lessThan(coord.row, height) && lessThan(coord.col, width)) {
+			return board_state[coord.row][coord.col];
+		} else {
+			printError("Coord " + String(coord) + " out of range");
+			return undefined;
+		}
 	};
 
-	// Register a listener function on the add function.
+	// Register a listener function on the set_cell function.
+	// The listener should take a coord as the first parameter, 
+	// and the value set on the cell as the second parameter.
+	// The listener cannot be later removed.
+	self.register_listener_on_set = function (listener) {
+		listeners_of_set.push(listener);
+	};
+
+	// Register a listener function on the clear_cell function.
 	// The listener should take a coord as the first parameter.
 	// The listener cannot be later removed.
-	self.register_listener_on_add = function (listener) {
-		listeners_of_add.push(listener);
+	self.register_listener_on_clear = function (listener) {
+		listeners_of_clear.push(listener);
 	};
 
-	// Register a listener function on the remove function
-	// The listener should take a coord as the first parameter
-	// The listener cannot be later removed.
-	self.register_listener_on_remove = function (listener) {
-		listeners_of_remove.push(listener);
-	};
-
-	// True if the cell at coord is occupied, false otherwise
-	self.is_cell_occupied = function (coord) {
-		return (get_cell(coord) === OCCUPIED);
-	};
-
-	// True if the cell at coord is vacant, false otherwise
-	self.is_cell_vacant = function (coord) {
-		return (get_cell(coord) === VACANT);
-	};
-
-	// Returns an array of the coords for each occupied cell
-	self.get_coords_of_all_occupied_cells = function () {
-		occupied = []
-		self.for_each_cell(function (coord) {
-			if (self.is_cell_occupied(coord)) {
-				occupied.push(coord);
-			}
-		});
-		return occupied;
-	};
-
-	// Apply the function f(coord) to each coord in the board
-	self.for_each_cell = function (f) {
-		from_to_2D_board(0, height - 1, 0, width - 1, f);
-	};
-
-	// Counts the number of occupied cells that touch the cell at coord
-	self.count_occupied_neighbors = function (coord) {
+	// Returns a list of coords that are on the board and that neighbor the given coord
+	// (that is, they share a side or corner)
+	self.get_neighbors = function (coord) {
 		neighbors = [];
-		var count = 0;
 		var from_row = Math.max(coord.row - 1, 0);
 		var to_row = Math.min(coord.row + 1, height - 1);
 		var from_col = Math.max(coord.col - 1, 0);
 		var to_col = Math.min(coord.col + 1, width - 1);
 		from_to_2D_board(from_row, to_row, from_col, to_col, function (neighborCoord) {
 			if (!coord.equals(neighborCoord)) {
-				if (self.is_cell_occupied(neighborCoord)) {
-					count++;
-				}
+				neighbors.push(neighborCoord);
 			}
 		});
-		return count;
+		return neighbors;
+	};
+
+	// Apply the function f(coord) to each coord in the board
+	self.for_each_cell = function (f) {
+		from_to_2D_board(0, height - 1, 0, width - 1, f);
 	};
 
 	// Clears the board so it is completely empty. Updates the display.

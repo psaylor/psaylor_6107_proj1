@@ -48,6 +48,15 @@ Array.prototype.each = function (f) {
 	});
 };
 
+Array.prototype.avg = function () {
+	var that = this;
+	var sum = 0.0;
+	that.each( function (el) {
+		sum+= el;
+	});
+	return sum / that.length;
+}
+
 /* Print Utilities */
 var print = function (msg) {
 	console.log(msg);

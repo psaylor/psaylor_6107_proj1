@@ -6,7 +6,7 @@ var DrawableGrid = function (height, width) {
 	var DEFAULT_HEIGHT = 40;
 	var DEFAULT_WIDTH = 40;
 
-	var OCCUPIED_CLASS = "muted-red";
+	var OCCUPIED_CLASSES = ["muted-red", "muted-blue", "green", "yellow"];
 
 	// use the default values if 
 	// 1. height or width is undefined
@@ -42,7 +42,7 @@ var DrawableGrid = function (height, width) {
 			if (DEBUG) {
 				print("Clicked Cell " + r + ", " + c );
 			}
-			$(this).toggleClass(OCCUPIED_CLASS);
+			$(this).toggleClass(OCCUPIED_CLASSES[0]);
 			cell_click_listeners.each( function (listener) {
 				listener(Coord(c, r));
 			});
@@ -78,12 +78,16 @@ var DrawableGrid = function (height, width) {
 
 	// Takes a Coord object in terms of the grid's coordinate system and
 	// puts an occupied at the corresponding location on the grid
-	self.draw_occupied_cell = function (coord) {
+	self.draw_occupied_cell = function (coord, value) {
 		if (DEBUG) {
 			// print("Drawing occupied cell at " + coord);
 		}
 		var cell = get_cell_by_id(coord.row, coord.col);
-		cell.addClass(OCCUPIED_CLASS);
+		if ((value > 0) && (value <= OCCUPIED_CLASSES.length)) {
+			cell.addClass(OCCUPIED_CLASSES[value-1]);
+		} else {
+			printError("Value " + value + " is out of range");
+		}
 	};
 
 	// Takes a Coord object in terms of the board's coordinate system and
@@ -92,12 +96,18 @@ var DrawableGrid = function (height, width) {
 		if (DEBUG) {
 			// print("Drawing vacant cell at " + coord);
 		}
-		get_cell_by_id(coord.row, coord.col).removeClass(OCCUPIED_CLASS);
+		var cell = get_cell_by_id(coord.row, coord.col);
+		OCCUPIED_CLASSES.each( function (occ_class) {
+			cell.removeClass(occ_class);
+		});
 	};
 
 	// Clears the grid.
 	self.draw_empty_grid = function () {
-		$("td.cell").removeClass(OCCUPIED_CLASS);
+		var all_cells = $("td.cell");
+		OCCUPIED_CLASSES.each( function (occ_class) {
+			all_cells.removeClass(occ_class);
+		});
 	};
 
 	// Register a listener function to be called whenever a cell in the grid
