@@ -121,12 +121,6 @@ var Life = function (board) {
 	// the object to be returned that holds all of life's "public" functions
 	var self = createObject(Life.prototype);
 
-	self.DEAD = DEAD;
-	self.ALIVE_A = ALIVE_A;
-	self.ALIVE_B = ALIVE_B;
-	self.ALIVE_C = ALIVE_C;
-	self.ALIVE_D = ALIVE_D;
-
 	// Returns an integer representing which quadrant the coord falls in
 	// | 1 | 2 |
 	// ---------
