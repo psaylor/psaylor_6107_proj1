@@ -1,12 +1,13 @@
 // An abstraction for a visible grid built of DOM elements
 // An optional height and width may be provided (defaults to DEFAULT_HEIGHT
-// and DEFAULT_WIDTH otherwise), which determines the number of cells in the grid
+// and DEFAULT_WIDTH otherwise), which determines the number of cells in the grid.
+// Allows you to set one of four different colors on a given cell, or to set no color.
 var DrawableGrid = function (height, width) {
 
 	var DEFAULT_HEIGHT = 40;
 	var DEFAULT_WIDTH = 40;
 
-	var OCCUPIED_CLASSES = ["muted-red", "muted-blue", "green", "yellow"];
+	var COLOR_CLASSES = ["muted-red", "muted-blue", "green", "yellow"];
 
 	// use the default values if 
 	// 1. height or width is undefined
@@ -42,7 +43,6 @@ var DrawableGrid = function (height, width) {
 			if (DEBUG) {
 				print("Clicked Cell " + r + ", " + c );
 			}
-			$(this).toggleClass(OCCUPIED_CLASSES[0]);
 			cell_click_listeners.each( function (listener) {
 				listener(Coord(c, r));
 			});
@@ -77,14 +77,19 @@ var DrawableGrid = function (height, width) {
 	var self = createObject(Life.prototype);
 
 	// Takes a Coord object in terms of the grid's coordinate system and
-	// puts an occupied at the corresponding location on the grid
-	self.draw_occupied_cell = function (coord, value) {
-		if (DEBUG) {
-			// print("Drawing occupied cell at " + coord);
-		}
+	// puts a colored at the corresponding location on the grid
+	// The value parameter should be between 1 and 4 inclusive, and selects
+	// a color for the cell from the 4 available colors.
+	self.draw_colored_cell = function (coord, value) {
 		var cell = get_cell_by_id(coord.row, coord.col);
-		if ((value > 0) && (value <= OCCUPIED_CLASSES.length)) {
-			cell.addClass(OCCUPIED_CLASSES[value-1]);
+
+		if ((value > 0) && (value <= COLOR_CLASSES.length)) {
+			// first remove the other classes
+			COLOR_CLASSES.each( function (occ_class) {
+				cell.removeClass(occ_class);
+			});
+			// then add the appropriate class
+			cell.addClass(COLOR_CLASSES[value-1]);
 		} else {
 			printError("Value " + value + " is out of range");
 		}
@@ -92,12 +97,9 @@ var DrawableGrid = function (height, width) {
 
 	// Takes a Coord object in terms of the board's coordinate system and
 	// puts a vacant at the corresponding location on the grid
-	self.draw_vacant_cell = function (coord) {
-		if (DEBUG) {
-			// print("Drawing vacant cell at " + coord);
-		}
+	self.draw_clear_cell = function (coord) {
 		var cell = get_cell_by_id(coord.row, coord.col);
-		OCCUPIED_CLASSES.each( function (occ_class) {
+		COLOR_CLASSES.each( function (occ_class) {
 			cell.removeClass(occ_class);
 		});
 	};
@@ -105,7 +107,7 @@ var DrawableGrid = function (height, width) {
 	// Clears the grid.
 	self.draw_empty_grid = function () {
 		var all_cells = $("td.cell");
-		OCCUPIED_CLASSES.each( function (occ_class) {
+		COLOR_CLASSES.each( function (occ_class) {
 			all_cells.removeClass(occ_class);
 		});
 	};

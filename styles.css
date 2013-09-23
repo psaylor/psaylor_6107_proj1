@@ -8,24 +8,12 @@ h1.title {
 	margin-top: 0px;
 }
 
-.red {
-	background-color: #e74c3c;
-}
-
 .muted-red {
 	background-color: #ec7063;
 }
 
-.blue {
-	background-color: #34495e;
-}
-
 .muted-blue {
 	background-color: #415b76;
-}
-
-.light-blue {
-	background-color: #5bc0de;
 }
 
 .green {
@@ -35,3 +23,4 @@ h1.title {
 .yellow {
 	background-color: #f0ad4e;
 }
+

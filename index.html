@@ -41,15 +41,23 @@
 						<span class="glyphicon glyphicon-pause"></span>
 					</label>
 				</div>
-				<button type="button" class="btn btn-danger" id="clear-btn">Clear
+				<button type="button" class="btn btn-danger" id="clear-btn"> Clear
 					<span class="glyphicon glyphicon-refresh"></span>
 				</button>
-				<button type="button" class="btn btn-info" id="random-btn">Randomize
+				<button type="button" class="btn btn-info" id="random-btn"> Randomize
 					<span class="glyphicon glyphicon-random"></span>
 				</button>
-				<button type="button" class="btn btn-primary" id="separate-btn">Separate
-					<span class="glyphicon glyphicon-th-large"></span>
-				</button>
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+				    	Peace <span class="caret"></span>
+				  	</button>
+				  	<ul class="dropdown-menu" role="menu">
+				    	<li><a href="#" id="normal-btn"> Normal</a></li>
+				    	<li class="divider"></li>
+				    	<li><a href="#" id="war-btn"> War</a></li>
+				    	<li><a href="#" id="peace-btn"> Peace</a></li>
+				  	</ul>
+				</div>
 			</div>
 
 			<small>Conway's Game of Life fascinated the world by showing that complex patterns could arise out of simple rules applied to seeming chaos. The game features a 2D grid of cells, each of which lives or dies based on its interaction with its neighbors as follows:

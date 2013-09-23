@@ -48,6 +48,7 @@ Array.prototype.each = function (f) {
 	});
 };
 
+// Add a function to iterate over each index in the array
 Array.prototype.eachIndex = function (f) {
 	var that = this;
 	from_to(0, that.length - 1, function (i) {
@@ -55,6 +56,7 @@ Array.prototype.eachIndex = function (f) {
 	});
 }
 
+// Add a function to compute the sum of the elements in the array
 Array.prototype.sum = function () {
 	var that = this;
 	var sum = 0.0;
@@ -64,6 +66,7 @@ Array.prototype.sum = function () {
 	return sum;
 };
 
+// Add a function to compute the weighted sum of the elements in the array
 Array.prototype.weightedSum = function () {
 	var that = this;
 	var sum = 0.0;
@@ -73,12 +76,14 @@ Array.prototype.weightedSum = function () {
 	return sum;
 };
 
+// Add a function to compute the average of the elements in the array
 Array.prototype.avg = function () {
 	var that = this;
 	var sum = that.sum();
 	return sum / that.length;
 };
 
+// Add a function to find the index of the maximum value in the array
 Array.prototype.indexOfMax = function () {
 	var that = this;
 	var max = Number.MIN_VALUE;
