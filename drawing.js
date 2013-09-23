@@ -77,31 +77,27 @@ var DrawableGrid = function (height, width) {
 	var self = createObject(Life.prototype);
 
 	// Takes a Coord object in terms of the grid's coordinate system and
-	// puts a colored at the corresponding location on the grid
-	// The value parameter should be between 1 and 4 inclusive, and selects
-	// a color for the cell from the 4 available colors.
-	self.draw_colored_cell = function (coord, value) {
+	// a value representing how to color it.
+	// A value of 0 means the cell should have no color; values between 1 and 4 
+	// inclusive  select a color for the cell from the 4 available colors.
+	self.draw_cell = function (coord, value) {
 		var cell = get_cell_by_id(coord.row, coord.col);
+		// first remove prior colors
+		COLOR_CLASSES.each( function (occ_class) {
+			cell.removeClass(occ_class);
+		});
 
+		// if value is 0, then done
+		if (value === 0) {
+			return;
+		}
+
+		// otherwise, add the appropriate color class
 		if ((value > 0) && (value <= COLOR_CLASSES.length)) {
-			// first remove the other classes
-			COLOR_CLASSES.each( function (occ_class) {
-				cell.removeClass(occ_class);
-			});
-			// then add the appropriate class
 			cell.addClass(COLOR_CLASSES[value-1]);
 		} else {
 			printError("Value " + value + " is out of range");
 		}
-	};
-
-	// Takes a Coord object in terms of the board's coordinate system and
-	// puts a vacant at the corresponding location on the grid
-	self.draw_clear_cell = function (coord) {
-		var cell = get_cell_by_id(coord.row, coord.col);
-		COLOR_CLASSES.each( function (occ_class) {
-			cell.removeClass(occ_class);
-		});
 	};
 
 	// Clears the grid.

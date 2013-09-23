@@ -81,6 +81,7 @@ var Life = function (board) {
 		var cells_in_next_state = [[], [], [], [], []];
 		
 		board.for_each_cell(function (coord) {
+			print("Looking at coord " + coord);
 			var num_neighbors_by_type = count_neighbors_by_type(coord);
 			var type = board.get_cell(coord);
 			var num_alive = num_neighbors_by_type.slice(1).sum();
@@ -88,7 +89,7 @@ var Life = function (board) {
 			if (is_cell_dead(coord)) { // cell is dead
 				if (num_alive === 3) {
 					// cell comes to life
-					var new_type = num_neighbors_by_type.slice(1).indexOfMax();
+					var new_type = num_neighbors_by_type.slice(1).indexOfMax() + 1;
 					cells_in_next_state[new_type].push(coord);
 				} else {
 					// cell still dead
@@ -162,7 +163,7 @@ var Life = function (board) {
 	// Takes a list of lists of dead and alive coords of each type for the next generation and applies the changes to the baord
 	var apply_life_changes = function (cells_in_next_state) {
 		cells_in_next_state[DEAD].each(function (coord) {
-			board.clear_cell(coord);
+			board.set_cell(coord, DEAD);
 		});
 		cells_in_next_state[ALIVE_A].each(function (coord) {
 			board.set_cell(coord, ALIVE_A);
@@ -271,12 +272,13 @@ var Life = function (board) {
 			life_changes = get_life_changes_normal();
 		}
 		apply_life_changes(life_changes);
-		print(board.toString());
 	};
 
 	// Clears the current generation from the board
 	self.clear = function () {
-		board.clear();
+		board.for_each_cell(function (coord) {
+			board.set_cell(coord, DEAD);
+		});
 	};
 
 	// Clears the current generation from the board and resets to a random initial state.
@@ -287,19 +289,24 @@ var Life = function (board) {
 		if (current_game_type === GAME_TYPE.NORMAL) {
 			board.for_each_cell(function (coord) {
 				if ((Math.random() + DEFUALT_PERCENT_CELLS_OCCUPIED) >= 1) {
-					board.set_cell(coord, ALIVE_A);
+					board.set_cell(coord, ALIVE_DEFAULT);
+				} else {
+					board.set_cell(coord, DEAD);
 				}
 			});
 		} else {
 			board.for_each_cell(function (coord) {
 				if ((Math.random() + DEFUALT_PERCENT_CELLS_OCCUPIED) >= 1) {
 					board.set_cell(coord, get_type_by_quadrant(coord));
+				} else {
+					board.set_cell(coord, DEAD);
 				}
 			});
 		}
 	};
 
-	// Sets the game to the normal version of the Game of Life and updates the cell types
+	// Sets the game to the normal version of the Game of Life and updates the cell 
+	// Updates the colors if the rules were not normal before
 	self.set_game_rules_normal = function () {
 		if (!(current_game_type === GAME_TYPE.NORMAL)) {
 			current_game_type = GAME_TYPE.NORMAL;
@@ -308,19 +315,21 @@ var Life = function (board) {
 	};
 
 	// Sets the game to the war version of the Game of Life and updates the cell types
+	// Updates the colors if the rules were normal before
 	self.set_game_rules_war = function () {
-		if (!(current_game_type === GAME_TYPE.WAR)) {
-			current_game_type = GAME_TYPE.WAR;
+		if (current_game_type === GAME_TYPE.NORMAL) {
 			update_types_by_quadrant();
 		}
+		current_game_type = GAME_TYPE.WAR;
 	};
 
 	// Sets the game to the peace version of the Game of Life and updates the cell types
+	// Updates the colors if the rules were normal before
 	self.set_game_rules_peace = function () {
-		if (!(current_game_type === GAME_TYPE.WAR)) {
-			current_game_type = GAME_TYPE.PEACE;
+		if (current_game_type === GAME_TYPE.NORMAL) {
 			update_types_by_quadrant();
-		}		
+		}
+		current_game_type = GAME_TYPE.PEACE;
 	};
 
 	// Sets the cell at coord to be alive. The type of the live cell is based on the current game rules being used. If not normal, the cell will take the type corresponding to the quadrant it is in.

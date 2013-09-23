@@ -4,8 +4,8 @@
 $(function () {
 
 	var UPDATE_INTERVAL = 1 * 1000; // 1 second
-	DEBUG = false; // (global on purpose for convenience)
-	var SIZE = 10;
+	DEBUG = true; // (global on purpose for convenience)
+	var SIZE = 40;
 
 	// create the DOM elements for the game		
 	grid = DrawableGrid(SIZE, SIZE);
@@ -19,8 +19,7 @@ $(function () {
 	life = Life(board); // (global on purpose for convenience)
 
 	// Register listeners between board and grid (model and view)
-	board.register_listener_on_set(grid.draw_colored_cell);
-	board.register_listener_on_clear(grid.draw_clear_cell);
+	board.register_listener_on_set(grid.draw_cell);
 	grid.register_cell_click_listener(life.set_alive);
 	
 	life.reset_random();
@@ -55,8 +54,7 @@ $(function () {
 	// Set the pause button to pause the game only if playing
 	$("#pause-btn").click(pauseLife);
 
-	// Set the clear button to pause the game and reset the 
-	// game to a random state
+	// Set the clear button to pause the game and clear the board and grid, and pause the game
 	$("#clear-btn").click(function (event) {
 		print("Clearing board");
 		$("#pause-btn").click();
@@ -68,7 +66,6 @@ $(function () {
 	// to a random state
 	$("#random-btn").click(function (event) {
 		print("Setting random initial state");
-		$("#pause-btn").click();
 		life.reset_random();
 	});
 

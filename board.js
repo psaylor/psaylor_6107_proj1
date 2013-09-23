@@ -13,33 +13,6 @@ var Coord = function (x, y) {
 		}};
 	};
 
-// An abstraction for the values maintained in BoardValue
-// This is primarily useful so that empty cells in the board can be represented
-// without limiting what values can be put in the board by callers
-// If no value is provided, then the BoardValue is empty
-// BoardValue is immutable
-var BoardValue = function (value) {
-	var self = createObject(Board.prototype);
-
-	var empty;
-	if (value === undefined) {
-		empty = true;
-	} else {
-		empty = false;
-	}
-
-	self.is_empty = function () {
-		return empty;
-	}
-
-	self.get_value = function () {
-		return value;
-	};
-
-	Object.freeze(self);
-	return self;
-};
-
 // A classic abstraction for a game board that maintains the state of the board
 // and provides functions for 
 // 1. checking the state (is_occupied/is_vacant, get all occupied cells, etc.) 
@@ -52,7 +25,7 @@ var Board = function (height, width) {
 	var DEFAULT_WIDTH = 40;
 
 	// value of a vacant cell
-	var EMPTY = 0;
+	var EMPTY = undefined;
 
 	// use the default values if 
 	// 1. height or width is undefined
@@ -154,10 +127,9 @@ var Board = function (height, width) {
 
 	// Clears the cell at coord in board_state by setting its value to 0 if coord is in range
 	// Returns true if the cell was successfully cleared, false otherwise
-	// TODO: abstract away from cell type/value
 	self.clear_cell = function (coord) {
 		if (lessThan(coord.row, height) && lessThan(coord.col, width) && lessThanEqualTo(0, coord.row) && lessThanEqualTo(0, coord.col)) {
-			board_state[coord.row][coord.col] = undefined;
+			board_state[coord.row][coord.col] = EMPTY;
 			listeners_of_clear.each( function (listener) {
 				listener(coord);
 			});

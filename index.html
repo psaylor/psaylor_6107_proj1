@@ -60,7 +60,7 @@
 				</div>
 			</div>
 
-			<small>Conway's Game of Life fascinated the world by showing that complex patterns could arise out of simple rules applied to seeming chaos. The game features a 2D grid of cells, each of which lives or dies based on its interaction with its neighbors as follows:
+			<small>Conway's Game of Life fascinated the world by showing that complex patterns could arise out of simple rules applied to seeming chaos. The game features a 2D grid of cells, each of which lives or dies based on its interaction with its neighbors as follows in 'Normal' mode:
 			</small>
 
 			<ol> 
@@ -70,12 +70,20 @@
 				<li><small> Any dead cell with exactly three live neighbors becomes a live cell in the next generation.</small></li>
 			</ol>
 
-			<small>In 'Separate' mode (<span class="glyphicon glyphicon-th-large"></span>), the board is divided by quadrants into 4 'cities' of different colors. This mode uses slightly modified rules:</small>
+			<small>In <strong>'War'</strong> mode, the board is divided by quadrants into 4 'cities' of different colors. This mode uses slightly modified rules:</small>
 			<ol> 
 				<li><small> Any live cell with fewer than two live neighbors of the same color dies, as if by underpopulation.</small></li>
 				<li><small> Any live cell with more than three live neighbors of the same color dies, as if by overcrowding.</small></li>
-				<li><small> Any live cell with two or three live neighbors of the same color lives on to the next generation.</small></li>
-				<li><small> Any dead cell with exactly three live neighbors becomes a live cell in the next generation as the average colso or of its neighbors.</small></li>
+				<li><small> Any live cell with two or three live neighbors of the same color lives on to the next generation, unless there are 4 or more neighbors of a different color, in which case the cell dies.</small></li>
+				<li><small> Any dead cell with exactly three live neighbors of any color becomes a live cell in the next generation, whose color is that of the majority of its neighbors.</small></li>
+			</ol>
+
+			<small>In <strong>'Peace'</strong> mode, the board is divided by quadrants into 4 'cities' of different colors. This mode uses slightly modified rules:</small>
+			<ol> 
+				<li><small> Any live cell with fewer than two live neighbors of any color dies, as if by underpopulation.</small></li>
+				<li><small> Any live cell with more than three live neighbors of any color dies, as if by overcrowding.</small></li>
+				<li><small> Any live cell with two or three live neighbors of any color lives on to the next generation.</small></li>
+				<li><small> Any dead cell with exactly three live neighbors becomes a live cell in the next generation, whose color is a function of the colors of its live neighbors, as if by intermingling.</small></li>
 			</ol>
 
 			<small>The demonstration above starts from a random initial state of live and dead cells and succesively applies the 4 rules to get each new generation. Watch as the chaos melts into order.</small>
