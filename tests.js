@@ -1,21 +1,18 @@
+// BOARD TESTS
 module("board module", {
 	setup: function () {
 		DEBUG = true;
-		var canvas = document.createElement('canvas');
-		var canvasSize = 400;
-		canvas.width = canvasSize;
-		canvas.height = canvasSize;
-		pad = Pad(canvas);
+		EMPTY_CELL = undefined;
 	}
 });
 
 test("testing board creation", function() {
 	var boardSize = 5;
-	var board = Board(pad, boardSize, boardSize);
+	var board = Board(boardSize, boardSize);
 	ok((board instanceof Board), "object returned an instance of Board");
 
 	board.for_each_cell(function (coord) {
-		ok((board.is_cell_vacant(coord) === true), "Cell vacant");
+		ok((board.get_cell(coord) === EMPTY_CELL), "Cell vacant");
 	}); 
 
 	ok(board.get_height() === boardSize, "Board has proper height");
@@ -24,186 +21,271 @@ test("testing board creation", function() {
 });
 
 test("testing board add/remove", function () {
-	var board = Board(pad, 5, 5);
+	var board = Board(5, 5);
 	// adding outside range of board shouldn't change the board
 	var coord1 = Coord(2, 5);
 	var coord2 = Coord(10, 10);
 	var coord3 = Coord(-1, 3);
 	var coord4 = Coord(-3, -2);
 
-	board.add(coord1);
-	board.add(coord2);
-	board.add(coord3);
-	board.add(coord4);
+	var value = 1;
+
+	board.set_cell(coord1, value);
+	board.set_cell(coord2, value);
+	board.set_cell(coord3, value);
+	board.set_cell(coord4, value);
 
 	board.for_each_cell(function (coord) {
-		ok((board.is_cell_vacant(coord) === true), "Cell vacant");
+		ok((board.get_cell(coord) === EMPTY_CELL), "Cell vacant");
 	});
 
 	// adding within range should make it occupied
 	board.for_each_cell(function (coord) {
-		board.add(coord);
-		ok((board.is_cell_occupied(coord)) === true, "Cell occupied")
+		board.set_cell(coord, value);
+		ok((board.get_cell(coord)) === value, "Cell occupied")
 	});
 
-	// removing outside range shouldn't change the board
-	board.remove(coord1);
-	board.remove(coord2);
-	board.remove(coord3);
-	board.remove(coord4);
+	// clearing outside range shouldn't change the board
+	board.clear_cell(coord1);
+	board.clear_cell(coord2);
+	board.clear_cell(coord3);
+	board.clear_cell(coord4);
 
 	board.for_each_cell(function (coord) {
-		ok((board.is_cell_occupied(coord) === true), "Cell occupied");
+		ok((board.get_cell(coord) === value), "Cell occupied");
 	});
 
-	// removing within range should make it vacant
+	// clearing within range should make it vacant
 	board.for_each_cell(function (coord) {
-		board.remove(coord);
-		ok((board.is_cell_vacant(coord)) === true, "Cell vacant")
+		board.clear_cell(coord);
+		ok((board.get_cell(coord)) === EMPTY_CELL, "Cell vacant")
 	});
 });
 
-test("testing get_coords_of_all_occupied_cells", function () {
-	var boardSize = 5;
-	var board = Board(pad, boardSize, boardSize);
-	var occupiedCoordsExpected = [];
+test("testing board clear", function () {
+	var boardSize = 6;
+	var board = Board(boardSize, boardSize);
 
-	// set the diagonal to be occupied
-	from_to(0, boardSize - 1, function (i) {
-		var coord = Coord(i, i);
-		board.add(coord);
-		occupiedCoordsExpected.push(coord);
+	var value = 1;
+	board.for_each_cell(function (coord) {
+		board.set_cell(coord, value);
 	});
 
-	// get the occupied cells
-	var occupied = board.get_coords_of_all_occupied_cells();
+	board.clear();
 
-	from_to(0, occupiedCoordsExpected.length - 1, function (i) {
-		var coord = occupiedCoordsExpected[i];
-		var contained = false;
-		from_to(0, occupied.length - 1, function (j) {
-			var coord2 = occupied[j];
-			if (coord.equals(coord2)) {
-				contained = true;
-			}
-		});
-		ok(contained, "Expected coordinate returned in occupied list");
-	});
-
-	// check that all actually occupied
-	occupied.each(function (coord) {
-		ok(board.is_cell_occupied(coord) === true, "Returned cell occupied");
-	});
+	board.for_each_cell(function (coord) {
+		ok(board.get_cell(coord) === EMPTY_CELL, "Cell succesfuly cleared");
+	})
 });
 
-test("testing count_occupied_neighbors", function () {
+test("testing board register set listeners", function () {
 	var boardSize = 2;
-	var board = Board(pad, boardSize, boardSize);
+	var board = Board(boardSize, boardSize);
 
-	// verify no neighbors at beginning
+	var f = function (coord) {
+		ok(true, "Listener function called");
+	};
+
+	board.register_listener_on_set(f);
+	var coord1 = Coord(0,0);
+	board.set_cell(coord1, 1);
+});
+
+test("testing board register clear listeners", function () {
+	var boardSize = 2;
+	var board = Board(boardSize, boardSize);
+
+	var f = function (coord) {
+		ok(true, "Listener function called");
+	};
+
+	board.register_listener_on_clear(f);
+	board.clear();
+});
+
+// LIFE TESTS
+module("life module", {
+	setup: function () {
+		DEBUG = true;
+		// the 5 different types of cells in the board from life.js
+		DEAD = 0;
+		ALIVE_A = 1;
+		ALIVE_B = 2;
+		ALIVE_C = 3;
+		ALIVE_D = 4;
+		ALIVE_DEFAULT = ALIVE_A;
+	}
+});
+
+test("testing count_neighbors_by_type", function () {
+	var boardSize = 2;
+	var board = Board(boardSize, boardSize);
+	var life = Life(board);
+
+	// verify no live neighbors at beginning
 	board.for_each_cell(function (coord) {
-		var n = board.count_occupied_neighbors(coord);
-		ok(n === 0, "Coordinate has no neighbors");
+		var num_neighbors_by_type = life.count_neighbors_by_type(coord);
+		ok(num_neighbors_by_type[DEAD] === 3, "Coordinate has no neighbors");
+		ok(num_neighbors_by_type[ALIVE_A] === 0, "Coordinate has no neighbors of type A");
+		ok(num_neighbors_by_type[ALIVE_B] === 0, "Coordinate has no neighbors of type B");
+		ok(num_neighbors_by_type[ALIVE_C] === 0, "Coordinate has no neighbors of type C");
+		ok(num_neighbors_by_type[ALIVE_D] === 0, "Coordinate has no neighbors of type D");
 	});
 
-	// set the whole board to be occupied
-	board.for_each_cell(function (coord) {
-		board.add(coord);
-	});
+	var coord1 = Coord(0, 0);
+	var coord2 = Coord(0, 1);
+	var coord3 = Coord(1, 0);
+	var coord4 = Coord(1, 1);
+	// set the whole board to be occupied by different types
+	board.set_cell(coord1, ALIVE_A);
+	board.set_cell(coord2, ALIVE_B);
+	board.set_cell(coord3, ALIVE_C);
+	board.set_cell(coord4, ALIVE_D);
 
-	// verify each has 3 neighbors now
+
+	// verify each has 3 neighbors now, one of each type
 	board.for_each_cell(function (coord) {
-		var n = board.count_occupied_neighbors(coord);
-		ok(n === 3, "Coordinate has 3 neighbors");
+		var num_neighbors_by_type = life.count_neighbors_by_type(coord);
+		var num_alive = num_neighbors_by_type.slice(1).sum();
+		ok(num_alive === 3, "Coordinate has 3 live neighbors");
+		ok(num_neighbors_by_type[DEAD] === 0, "Coordinate has no dead neighbors");
+		ok((num_neighbors_by_type[ALIVE_A] === 0 || num_neighbors_by_type[ALIVE_A] === 1), "Coordinate has 0 or 1 neighbors of type A");
+		ok((num_neighbors_by_type[ALIVE_B] === 0 || num_neighbors_by_type[ALIVE_B] === 1), "Coordinate has 0 or 1 neighbors of type B");
+		ok((num_neighbors_by_type[ALIVE_C] === 0 || num_neighbors_by_type[ALIVE_C] === 1), "Coordinate has 0 or 1 neighbors of type C");
+		ok((num_neighbors_by_type[ALIVE_D] === 0 || num_neighbors_by_type[ALIVE_D] === 1), "Coordinate has 0 or 1 neighbors of type D");
 	});
 
 	var removedCoord = Coord(0,0);
-	board.remove(removedCoord);
+	board.set_cell(removedCoord, DEAD);
 
 	// verify neighbors now
 	board.for_each_cell(function (coord) {
-		var n = board.count_occupied_neighbors(coord);
+		var num_neighbors_by_type = life.count_neighbors_by_type(coord);
+		var num_alive = num_neighbors_by_type.slice(1).sum();
 		if (coord.equals(removedCoord)) {
-			ok(n === 3, "Coordinate has 3 neighbors");
+			ok(num_alive === 3, "Coordinate has 3 neighbors");
 		} else {
-			ok(n === 2, "Coordinate has 3 neighbors");
+			ok(num_alive === 2, "Coordinate has 3 neighbors");
 		}		
 	});
 });
 
-test("testing board clear/reset", function () {
-	var boardSize = 6;
-	var board = Board(pad, boardSize, boardSize);
-
-	board.for_each_cell(function (coord) {
-		board.add(coord);
-	});
-
-	board.clear();
-
-	board.for_each_cell(function (coord) {
-		ok(board.is_cell_vacant(coord) === true, "Cell succesfuly cleared");
-	})
-
-	board.reset();
-
-	var count = 0;
-	board.for_each_cell(function (coord) {
-		if (board.is_cell_occupied(coord)) {
-			count++;
-		}
-	});
-
-	ok(count > 0, "Reset added some initial state"); 
-	// (this could fail with some very small probability)
-})
-
-module("life module", {
-	setup: function () {
-		DEBUG = true;
-		var canvas = document.createElement('canvas');
-		var canvasSize = 400;
-		canvas.width = canvasSize;
-		canvas.height = canvasSize;
-		pad = Pad(canvas);
-	}
-});
-
-test("testing life next generation", function () {
+test("testing life next generation for normal rules", function () {
 	var boardSize = 4;
-	board = Board(pad, boardSize, boardSize);
+	board = Board(boardSize, boardSize);
 	var life = Life(board);
 
+	life.set_game_rules_normal();
 	// make a square of alive cells
-	board.clear();
 	var aliveCoords = [Coord(1, 1), Coord(1, 2), Coord(2, 1), Coord(2, 2)];
 	aliveCoords.each(function (coord) {
-		board.add(coord);
+		board.set_cell(coord, ALIVE_DEFAULT);
 	});
 
 	// verify the life changes have the right size
-	var lifeChanges = life.get_life_changes();
-	ok(lifeChanges.alive.length === 4, "Should be 4 alive cells");
-	ok(lifeChanges.dead.length === 12, "Should be 12 dead cells");
+	var cells_in_next_state = life.get_life_changes_normal();
+	ok(cells_in_next_state[ALIVE_DEFAULT].length === 4, "Should be 4 alive cells");
+	ok(cells_in_next_state[DEAD].length === 12, "Should be 12 dead cells");
 	life.update(); // updates the state of the board with the life changes
 
 	// verify each alive cell still alive
 	aliveCoords.each(function (coord) {
-		ok(board.is_cell_occupied(coord) === true, "Cell still alive");
+		ok(board.get_cell(coord) === ALIVE_DEFAULT, "Cell still alive");
 	});
 
 	// and verify the other cells are still dead
-	ok(board.get_coords_of_all_occupied_cells().length === 4, "Only 4 cells alive");
+	var count_alive = 0;
+	board.for_each_cell(function (coord) {
+		if (board.get_cell(coord) === ALIVE_DEFAULT) {
+			count_alive++;
+		}
+	});
+	ok(count_alive === 4, "Only 4 cells alive");
+});
+
+test("testing life next generation for peace rules", function () {
+	var boardSize = 4;
+	board = Board(boardSize, boardSize);
+	var life = Life(board);
+
+	// make a square of alive cells
+	life.clear();
+	life.set_game_rules_peace();
+
+	var coord1 = Coord(1, 1);
+	var coord2 = Coord(1, 2);
+	var coord3 = Coord(2, 1);
+	var coord4 = Coord(2, 2);
+
+	// set each of the above coords to a different alive type
+	board.set_cell(coord1, ALIVE_A);
+	board.set_cell(coord2, ALIVE_B);
+	board.set_cell(coord3, ALIVE_C);
+	board.set_cell(coord4, ALIVE_D);
+
+	// verify the life changes have the right size
+	var cells_in_next_state = life.get_life_changes_peace();
+	ok(cells_in_next_state[ALIVE_A].length === 1, "Should be 1 alive cell of A");
+	ok(cells_in_next_state[ALIVE_B].length === 1, "Should be 1 alive cell of B");
+	ok(cells_in_next_state[ALIVE_C].length === 1, "Should be 1 alive cell of C");
+	ok(cells_in_next_state[ALIVE_D].length === 1, "Should be 1 alive cell of D");
+	ok(cells_in_next_state[DEAD].length === 12, "Should be 12 dead cells");
+	life.update(); // updates the state of the board with the life changes
+
+	// verify each alive cell still alive
+	ok(board.get_cell(coord1) === ALIVE_A, "Cell still alive");
+	ok(board.get_cell(coord2) === ALIVE_B, "Cell still alive");
+	ok(board.get_cell(coord3) === ALIVE_C, "Cell still alive");
+	ok(board.get_cell(coord4) === ALIVE_D, "Cell still alive");
+
+	// and verify the other cells are still dead
+	var count_alive = 0;
+	board.for_each_cell(function (coord) {
+		if (!(board.get_cell(coord) === DEAD)) {
+			count_alive++;
+		}
+	});
+	ok(count_alive === 4, "Only 4 cells alive");
+});
+
+test("testing life next generation for war rules", function () {
+	var boardSize = 4;
+	board = Board(boardSize, boardSize);
+	var life = Life(board);
+	life.set_game_rules_war();
+
+	// make a square of alive cells
+	var coord1 = Coord(1, 1);
+	var coord2 = Coord(1, 2);
+	var coord3 = Coord(2, 1);
+	var coord4 = Coord(2, 2);
+
+	// set each of the above coords to a different alive type
+	board.set_cell(coord1, ALIVE_A);
+	board.set_cell(coord2, ALIVE_B);
+	board.set_cell(coord3, ALIVE_C);
+	board.set_cell(coord4, ALIVE_D);
+
+	// verify the life changes have the right size
+	var cells_in_next_state = life.get_life_changes_war();
+	// ok(cells_in_next_state[ALIVE_DEFAULT].length === 4, "Should be 4 alive cells");
+	ok(cells_in_next_state[DEAD].length === 16, "Should be 16 dead cells");
+	life.update(); // updates the state of the board with the life changes
+
+	// and verify all cells dead now
+	board.for_each_cell(function (coord) {
+		ok(board.get_cell(coord) === DEAD, "Cell dead now");
+	});
 });
 
 test("testing life next generation again", function () {
 	var boardSize = 3;
-	board = Board(pad, boardSize, boardSize);
+	board = Board(boardSize, boardSize);
 	var life = Life(board);
 
 	// make all cells alive
 	board.for_each_cell(function (coord) {
-		board.add(coord);
+		board.set_cell(coord, ALIVE_DEFAULT);
 	});
 
 	life.update(); // updates the state of the board with the life changes
@@ -214,14 +296,14 @@ test("testing life next generation again", function () {
 		if ((coord.y === 0) || (coord.y === boardSize -1)) {
 			if ((coord.x === 0) || (coord.x === boardSize -1)) {
 				// corner cell
-				ok(board.is_cell_occupied(coord) === true, "Corner cell alive");
+				ok(board.get_cell(coord) === ALIVE_DEFAULT, "Corner cell alive");
 			} else {
 				// non corner
-				ok(board.is_cell_vacant(coord) === true, "Non-corner cell dead");
+				ok(board.get_cell(coord) === DEAD, "Non-corner cell dead");
 			}
 		} else {
 			// not a corner- should be dead
-			ok(board.is_cell_vacant(coord) === true, "Non-corner cell dead");
+			ok(board.get_cell(coord) === DEAD, "Non-corner cell dead");
 		}
 	});
 

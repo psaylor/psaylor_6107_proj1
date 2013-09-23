@@ -81,7 +81,6 @@ var Life = function (board) {
 		var cells_in_next_state = [[], [], [], [], []];
 		
 		board.for_each_cell(function (coord) {
-			print("Looking at coord " + coord);
 			var num_neighbors_by_type = count_neighbors_by_type(coord);
 			var type = board.get_cell(coord);
 			var num_alive = num_neighbors_by_type.slice(1).sum();
@@ -343,15 +342,28 @@ var Life = function (board) {
 
 	// reveal some methods in debug mode only
 	if (DEBUG) {
-		self.get_life_changes = function () {
-			return get_life_changes();
+		self.get_life_changes_normal = function () {
+			return get_life_changes_normal();
 		};
 
-		self.count_alive_neighbors_of_same_type = function (coord) {
-			return count_alive_neighbors_of_same_type(coord);
+		self.get_life_changes_peace = function () {
+			return get_life_changes_peace();
+		};
+
+		self.get_life_changes_war = function () {
+			return get_life_changes_war();
+		};
+
+		self.count_neighbors_by_type = function (coord) {
+			return count_neighbors_by_type(coord);
+		};
+
+		self.get_type_by_quadrant = function (coord) {
+			return get_type_by_quadrant(coord);
 		};
 	}
 
 	Object.freeze(self);
+	self.clear();
 	return self;
 };
