@@ -48,14 +48,50 @@ Array.prototype.each = function (f) {
 	});
 };
 
-Array.prototype.avg = function () {
+Array.prototype.eachIndex = function (f) {
+	var that = this;
+	from_to(0, that.length - 1, function (i) {
+		f(i);
+	});
+}
+
+Array.prototype.sum = function () {
 	var that = this;
 	var sum = 0.0;
 	that.each( function (el) {
 		sum+= el;
 	});
+	return sum;
+};
+
+Array.prototype.weightedSum = function () {
+	var that = this;
+	var sum = 0.0;
+	that.eachIndex(function (i) {
+		sum+= ( i * that[i]);
+	});
+	return sum;
+};
+
+Array.prototype.avg = function () {
+	var that = this;
+	var sum = that.sum();
 	return sum / that.length;
-}
+};
+
+Array.prototype.indexOfMax = function () {
+	var that = this;
+	var max = Number.MIN_VALUE;
+	var index = -1;
+	that.eachIndex(function (i) {
+		var el = that[i];
+		if (el > max) {
+			max = el;
+			index = i;
+		}
+	});
+	return index;
+};
 
 /* Print Utilities */
 var print = function (msg) {

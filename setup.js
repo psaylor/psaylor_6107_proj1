@@ -14,7 +14,7 @@ $(function () {
 
 	var UPDATE_INTERVAL = 1 * 1000; // 1 second
 	DEBUG = true; // (global on purpose for convenience)
-	var SIZE = 10;
+	var SIZE = 20;
 
 	// create the DOM elements for the game		
 	grid = DrawableGrid(SIZE, SIZE);

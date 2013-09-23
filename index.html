@@ -41,10 +41,10 @@
 						<span class="glyphicon glyphicon-pause"></span>
 					</label>
 				</div>
-				<button type="button" class="btn btn-primary" id="clear-btn">Clear
+				<button type="button" class="btn btn-danger" id="clear-btn">Clear
 					<span class="glyphicon glyphicon-refresh"></span>
 				</button>
-				<button type="button" class="btn btn-primary" id="random-btn">Randomize
+				<button type="button" class="btn btn-info" id="random-btn">Randomize
 					<span class="glyphicon glyphicon-random"></span>
 				</button>
 				<button type="button" class="btn btn-primary" id="separate-btn">Separate
@@ -60,6 +60,14 @@
 				<li><small> Any live cell with more than three live neighbors dies, as if by overcrowding.</small></li>
 				<li><small> Any live cell with two or three live neighbors lives on to the next generation.</small></li>
 				<li><small> Any dead cell with exactly three live neighbors becomes a live cell in the next generation.</small></li>
+			</ol>
+
+			<small>In 'Separate' mode (<span class="glyphicon glyphicon-th-large"></span>), the board is divided by quadrants into 4 'cities' of different colors. This mode uses slightly modified rules:</small>
+			<ol> 
+				<li><small> Any live cell with fewer than two live neighbors of the same color dies, as if by underpopulation.</small></li>
+				<li><small> Any live cell with more than three live neighbors of the same color dies, as if by overcrowding.</small></li>
+				<li><small> Any live cell with two or three live neighbors of the same color lives on to the next generation.</small></li>
+				<li><small> Any dead cell with exactly three live neighbors becomes a live cell in the next generation as the average colso or of its neighbors.</small></li>
 			</ol>
 
 			<small>The demonstration above starts from a random initial state of live and dead cells and succesively applies the 4 rules to get each new generation. Watch as the chaos melts into order.</small>
